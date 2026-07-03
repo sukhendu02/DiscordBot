@@ -5,7 +5,7 @@ import {  loginAdmin } from "../controller/authController.js";
 
 // ROUTES
 
-// router.post("/register",registerAdmin); // ADMIN SEEDED
+// router.post("/register",registerAdmin); //ADMIN SEEDED
 
 router.post("/login",loginAdmin)
 

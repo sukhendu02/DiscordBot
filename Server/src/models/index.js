@@ -25,7 +25,7 @@ CommandLog.belongsTo(Server, { foreignKey: 'serverId' });
 // CommandLog.belongsTo(Rule, { foreignKey: 'matchedRuleId', as: 'matchedRule' });
 
 const syncDatabase = async ()=>{
-    await sequelize.sync({alter:true});
+    // await sequelize.sync({alter:true});
     console.log("Database synchronized successfully");
 }
 

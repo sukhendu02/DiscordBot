@@ -10,3 +10,7 @@ export const generateAccessToken = (adminUser)=>{
         expiresIn:process.env.JWT_EXPIRES_IN || "10h"
     })
 }
+
+export const verifyAccessToken = (token)=>{
+    return jwt.verify(token, process.env.JWT_SECRET);
+}
