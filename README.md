@@ -1,1 +1,3 @@
 ### UPDATE THIS LATER AFTER COMPLETION
+
+<!-- Auth: access-token-only JWT, no refresh tokens. I considered a full access+refresh token pair but decided against it — this app has one or two admin users on a low-stakes internal dashboard, not a multi-tenant product with a large attack surface. Refresh tokens solve real problems (shorter exposure windows, server-side revocation) but need a tracked-token table, rotation, and reuse detection to do correctly — disproportionate complexity for this timeline and threat model. The trade-off I accepted: logout is client-side only (the cookie is cleared, but the JWT itself remains valid server-side until its 8-hour expiry). Given the low stakes and short session length, that's an acceptable gap rather than a real vulnerability. -->

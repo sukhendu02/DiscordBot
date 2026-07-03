@@ -3,6 +3,7 @@ import app from "./app.js";
 
 import { syncDatabase } from "./src/models/index.js";
 import sequelize from "./src/config/database.js"
+import {seedAdmin} from "./src/utils/seeder/adminSeeder.js"
 import dotenv from 'dotenv'
 dotenv.config();
 
@@ -17,6 +18,7 @@ const startServer = async () => {
       console.log(`Server running on port ${PORT}`);
     });
     await syncDatabase();
+    await seedAdmin()
 
   }catch(error){
 

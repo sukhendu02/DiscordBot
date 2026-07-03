@@ -2,13 +2,20 @@ import express from "express";
 const app = express();
 
 import { errorHandler, notFoundHandler } from "./src/middleware/ErrorHandler.js";
+import helmet from "helmet";
+import authRoute from "./src/modules/auth/route/authRoute.js";
 
+// HELMET MIDDLEWARE FOR SECURITY HEADERS
+app.use(helmet());    
 
 // Body parser
 app.use(express.json());
 
-     
- 
+
+// ROUTES 
+app.use("/api/v1/auth",authRoute)
+
+
 // ROOT ROUTE
 app.get("/",(req,res)=>{
     res.status(200).json({

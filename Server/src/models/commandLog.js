@@ -8,7 +8,6 @@ const CommandLog = sequelize.define('CommandLog',
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-
     
     interactionId: {
       type: DataTypes.STRING,
@@ -80,8 +79,8 @@ const CommandLog = sequelize.define('CommandLog',
     timestamps: true,
 
      indexes: [
-      { unique: true, fields: ['interactionId'] },
-      { fields: ['serverId', 'createdAt'] },
+      { unique: true, fields: ['interaction_id'] },
+      { fields: ['server_id', 'created_at'] },
     ],
   }
 );

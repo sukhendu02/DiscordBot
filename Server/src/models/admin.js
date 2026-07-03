@@ -10,13 +10,17 @@ const Admin = sequelize.define('Admin',
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+    username:{
+      type:DataTypes.STRING,
+      allowNull:false,
+    },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
       validate: { isEmail: true },
     },
-    passwordHash: {
+    password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
