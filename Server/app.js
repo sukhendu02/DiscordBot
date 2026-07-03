@@ -1,6 +1,9 @@
 import express from "express";
 const app = express();
 
+import { errorHandler, notFoundHandler } from "./src/middleware/ErrorHandler.js";
+
+
 // Body parser
 app.use(express.json());
 
@@ -22,5 +25,9 @@ app.get("/health",(req,res)=>{
     })
 })
 
+// ERROR HANDLER - 404
+app.use(notFoundHandler);
+//  ERROR HANDLER
+app.use(errorHandler)
  
 export default app;
