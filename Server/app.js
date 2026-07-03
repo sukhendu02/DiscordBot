@@ -27,6 +27,7 @@ app.get("/health",(req,res)=>{
 
 // ERROR HANDLER - 404
 app.use(notFoundHandler);
+
 //  ERROR HANDLER
 app.use(errorHandler)
  
