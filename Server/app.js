@@ -7,8 +7,17 @@ import authRoute from "./src/modules/auth/route/authRoute.js";
 import discordRoute from "./src/modules/discord/route/discordRoutes.js"
 import rulesRoutes from "./src/modules/rules/routes/rulesRoutes.js"
 import serverRoutes from "./src/modules/server/route/serverRoutes.js"
+import cors from 'cors';
 // HELMET MIDDLEWARE FOR SECURITY HEADERS
-app.use(helmet());    
+app.use(helmet()); 
+
+// Enable CORS
+app.use(cors({
+    origin: ["http://localhost:5173", process.env.FRONTEND_URL], 
+    credentials: true,               
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }));
 
 app.use("/api/v1/discord",discordRoute)
 
