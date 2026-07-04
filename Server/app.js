@@ -5,6 +5,8 @@ import { errorHandler, notFoundHandler } from "./src/middleware/ErrorHandler.js"
 import helmet from "helmet";
 import authRoute from "./src/modules/auth/route/authRoute.js";
 import discordRoute from "./src/modules/discord/route/discordRoutes.js"
+import rulesRoutes from "./src/modules/rules/routes/rulesRoutes.js"
+
 // HELMET MIDDLEWARE FOR SECURITY HEADERS
 app.use(helmet());    
 
@@ -17,6 +19,7 @@ app.use(express.json());
 // ROUTES 
 app.use("/api/v1/auth",authRoute)
 
+app.use("/api/v1/rules",rulesRoutes)
 
 // ROOT ROUTE
 app.get("/",(req,res)=>{

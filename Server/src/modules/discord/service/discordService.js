@@ -1,6 +1,7 @@
 
 import CommandLog from "../../../models/commandLog.js";
 import Server from "../../../models/servermodel.js";
+import { matchRule } from "../../rules/service/ruleEngine.js";
 
 const InteractionType = {
   PING: 1,
@@ -15,7 +16,7 @@ const InteractionResponseType = {
 };
 const ReplyText ={
     STATUS:`Bot is connected and working.`,
-    REPORT:"Report received successfully."
+    REPORT:`Report received successfully.`
 }
 
 export const discordInteractionService = async(interaction)=>{
@@ -30,12 +31,7 @@ export const discordInteractionService = async(interaction)=>{
         // const commandName = interaction.data?.name;
 
         return handleApplicationCommand(interaction);
-        // return{
-        //     type:InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        //     data:{
-        //         content:`Received /${commandName}`
-        //     }
-        // }
+      
     }
 
     return{
@@ -47,26 +43,26 @@ export const discordInteractionService = async(interaction)=>{
 }
 
 const handleApplicationCommand = async(interaction)=>{
-  
-    
-    
+//   console.log(interaction)
     const commandName = interaction.data?.name;
     const inputText = interaction.data?.options?.[0]?.value??null;
     const discordUserId = interaction.member?.user?.id || interaction.user?.id;
     const discordUsername = interaction.member?.user?.username || interaction.user?.username;
 
-console.log("Command received:", { commandName, inputText, discordUserId, discordUsername });
-    const server = await Server.findOne({where:{discordGuildId:interaction.guild_id}});
+// console.log("Command received:", { commandName, inputText, discordUserId, discordUsername });
 
-    if(!server){
-        return{
-            type:InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data:{
-                content:"This sever hasn't ben connected yet"
-            },
-        }
+console.time("server");
+const server = await Server.findOne({where:{discordGuildId:interaction.guild_id}});
+
+if(!server){
+    return{
+        type:InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data:{
+            content:"This sever hasn't ben connected yet"
+        },
     }
-    // console.log("hi")
+}
+console.timeEnd("server");
     
     // SAVE THE COMMAND IN DB
     const newCommandLog = await CommandLog.create({
@@ -79,14 +75,22 @@ console.log("Command received:", { commandName, inputText, discordUserId, discor
         inputText,
         status:"processing",
     });
-    
+
+    console.time("matchRule");
+
+    const matchedRule = await matchRule(server.id, inputText);
+    newCommandLog.matchedRuleId = matchedRule?.id ?? null;
+    newCommandLog.actionTaken = matchedRule?.action ?? "logged";
+console.timeEnd("matchRule");
+    console.time("reply and save");
     // BULD REPLY 
-    const reply = commandName==="status" ? ReplyText.STATUS : ReplyText.REPORT;    
+    const reply = commandName==="status" ? ReplyText.STATUS : `${ReplyText.REPORT}  Action: ${newCommandLog.actionTaken}`;    
     newCommandLog.status = "completed";
     newCommandLog.respondedAt = new Date();
-   
+    
     
     await newCommandLog.save();
+    console.timeEnd("reply and save");
     return {
         type:InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data:{

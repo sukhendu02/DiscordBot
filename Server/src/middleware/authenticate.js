@@ -15,13 +15,15 @@ export const authenticate = async (req, res, next) => {
     // VERIFY TOKEN
     const decodedToken = verifyAccessToken(token);
 
+
     // FIND ADMIN
-    const adminUser = Admin.findByPk(decodedToken.id);
+    const adminUser = await Admin.findByPk(decodedToken.id);
 
     if(!adminUser){
         throw UnauthorizedError("Admin user not found")
     }
 
+   
     // SET ADMIN
     req.admin = adminUser;
     next();

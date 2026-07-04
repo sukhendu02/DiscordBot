@@ -42,6 +42,12 @@ const Server = sequelize.define('Server',
     tableName: 'servers',
     underscored:true,
     timestamps: true,
+     indexes: [
+      {
+        unique: true,
+        fields: ["discord_guild_id"],
+      },
+    ],
   }
 );
 export default Server;
