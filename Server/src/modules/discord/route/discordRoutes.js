@@ -1,6 +1,14 @@
-import {Router} from "express";
+import express,{Router} from "express";
+import {discordInteraction} from "../controller/discordController.js";
+import { verifyDiscordSign } from "../../../middleware/verifyDiscordSign.js";
+
 const router = Router();
 
-router.get("/interaction",discordController)
+router.post("/interaction",  
+    express.raw({ type: "application/json" }),
+    verifyDiscordSign,
+    discordInteraction
+)
+
 
 export default router;
