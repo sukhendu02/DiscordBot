@@ -18,7 +18,7 @@ export const seedAdmin = async () => {
         }
     });
     if(existingAdmin){
-        console.log("Admin present")
+        // console.log("Admin present")
         return;
     }
     const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD.trim(), 10);
@@ -30,6 +30,6 @@ export const seedAdmin = async () => {
         password:hashedPassword
     })
 
-    console.log("Admin seeded successfully");
+    // console.log("Admin seeded successfully");
 
 }
