@@ -20,6 +20,7 @@ export function AuthProvider({ children }) {
       try {
         const user = await fetchCurrentAdmin();
         setAdmin(user);
+        console.log("user req",user)
       } catch (error) {
         localStorage.removeItem('token');
         setAdmin(null);
@@ -33,8 +34,9 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const data = await authLogin(email, password);
+    console.log(data)
     localStorage.setItem('token', data.accessToken);
-    setAdmin({ id: data.id, email: data.email });
+    setAdmin({ id: data.admin.id, email: data.admin.email,data:data.admin.username });
     return data;
   }, []);
 
