@@ -17,8 +17,8 @@ const verifyServerOwnership = async (serverId, adminId) => {
 // GET RULES SERVICE
 export const getRulesService = async (serverId,adminId)=>{
 
-    console.log("serverId",serverId)
-    console.log("adminId",adminId)
+    // console.log("serverId",serverId)
+    // console.log("adminId",adminId)
     const verify= await verifyServerOwnership(serverId,adminId);
 
     return Rules.findAll({

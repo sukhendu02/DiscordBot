@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
       try {
         const user = await fetchCurrentAdmin();
         setAdmin(user);
-        console.log("user req",user)
+        // console.log("user req",user)
       } catch (error) {
         localStorage.removeItem('token');
         setAdmin(null);

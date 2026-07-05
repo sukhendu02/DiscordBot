@@ -33,7 +33,7 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      console.log('Login successful, navigating to dashboard');
+      // console.log('Login successful, navigating to dashboard');
       navigate('/dashboard');
     } catch (err) {
       setError(err?.response?.data?.error?.message  || 'Invalid email or password');

@@ -39,9 +39,9 @@ const [isDeleting, setIsDeleting] = useState(false);
    
       const data = await fetchServers();
     
-      console.log(data)
+    //   console.log(data)
       setServers(Array.isArray(data) ? data : data.servers || []);
-      console.log(servers)
+    //   console.log(servers)
 
       
     } catch (err) {

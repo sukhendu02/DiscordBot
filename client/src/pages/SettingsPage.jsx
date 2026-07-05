@@ -20,7 +20,7 @@ export default function SettingsPage() {
   
  const { admin, logout } = useAuth();
 
- console.log(admin)
+//  console.log(admin)
  const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });

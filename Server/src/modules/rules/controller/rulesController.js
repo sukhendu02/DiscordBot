@@ -33,7 +33,7 @@ export const postRules = async(req,res)=>{
 // UPDATE RULE CONTROLLER
 export const updateRules = async(req,res)=>{
     const ruleId= req.params.ruleId
-    console.log(ruleId)
+    // console.log(ruleId)
       if(!ruleId){
         throw BadRequestError("Rule id is missing")
     }

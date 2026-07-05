@@ -50,7 +50,7 @@ const loadCommands = async () => {
     //   status: statusFilter,
     });
 
-    console.log(data)
+    // console.log(data)
 
     setCommands(data.data.logs);
     setPagination(data.data.pagination);
