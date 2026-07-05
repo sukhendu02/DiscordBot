@@ -14,6 +14,8 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try{
     await sequelize.authenticate();
+    
+    // LISTEN TO SERVER
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
