@@ -1,8 +1,9 @@
 
+import { text } from "express";
 import CommandLog from "../../../models/commandLog.js";
 import Server from "../../../models/servermodel.js";
 import { matchRule } from "../../rules/service/ruleEngine.js";
-
+import axios from 'axios';
 const InteractionType = {
   PING: 1,
   APPLICATION_COMMAND: 2,
@@ -43,15 +44,12 @@ export const discordInteractionService = async(interaction)=>{
 }
 
 const handleApplicationCommand = async(interaction)=>{
-//   console.log(interaction)
+
     const commandName = interaction.data?.name;
     const inputText = interaction.data?.options?.[0]?.value??null;
     const discordUserId = interaction.member?.user?.id || interaction.user?.id;
     const discordUsername = interaction.member?.user?.username || interaction.user?.username;
 
-// console.log("Command received:", { commandName, inputText, discordUserId, discordUsername });
-
-console.time("server");
 const server = await Server.findOne({where:{discordGuildId:interaction.guild_id}});
 
 if(!server){
@@ -62,7 +60,6 @@ if(!server){
         },
     }
 }
-console.timeEnd("server");
     
     // SAVE THE COMMAND IN DB
     const newCommandLog = await CommandLog.create({
@@ -76,21 +73,36 @@ console.timeEnd("server");
         status:"processing",
     });
 
-    console.time("matchRule");
-
     const matchedRule = await matchRule(server.id, inputText);
     newCommandLog.matchedRuleId = matchedRule?.id ?? null;
-    newCommandLog.actionTaken = matchedRule?.action ?? "logged";
-console.timeEnd("matchRule");
-    console.time("reply and save");
-    // BULD REPLY 
+    newCommandLog.actionTaken = matchedRule?.action ?? "Logged";
+    
+      // BULD REPLY 
     const reply = commandName==="status" ? ReplyText.STATUS : `${ReplyText.REPORT}  Action: ${newCommandLog.actionTaken}`;    
+
+
+   
+    // WEBHOOK
+    if (commandName === "report"  && server.mirrorWebhookUrl) {
+        newCommandLog.mirrorStatus = "pending";
+        const payload = buildDiscordWebhookPayload({
+            serverName:server.guildName,
+            discordUsername,
+            inputText,
+            commandName,
+            action:newCommandLog.actionTaken,
+            type:server.mirrorType
+        })
+
+        const webhookResult = await sendDiscordWebhook(server.mirrorWebhookUrl,payload);
+        newCommandLog.mirrorStatus = webhookResult.success ? "sent" : "failed";
+        newCommandLog.mirrorResponse = webhookResult.response;
+        newCommandLog.mirroredAt = webhookResult.success ? new Date() : null
+    }
     newCommandLog.status = "completed";
     newCommandLog.respondedAt = new Date();
     
-    
     await newCommandLog.save();
-    console.timeEnd("reply and save");
     return {
         type:InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data:{
@@ -101,3 +113,47 @@ console.timeEnd("matchRule");
     
 
 }
+
+export const buildDiscordWebhookPayload = ({
+  serverName,
+  discordUsername,
+  inputText,
+  commandName,
+  action,
+  type
+}) => {
+  const messageText = ` **/${commandName}**
+
+**Server:** ${serverName}
+**User:** ${discordUsername}
+**Report:** ${inputText || "(no input)"}
+**Action:** ${action}`;
+
+  if (type === "discord") {
+    return {
+      content: messageText,
+    };
+  }
+
+  return {
+    text: messageText,
+  };
+};
+
+export const sendDiscordWebhook = async (webhookUrl, payload) => {
+  try {
+   const data = await axios.post(webhookUrl, payload, {
+      timeout: 5000,
+    });
+
+    return {
+      success: true,
+      response: "Delivered",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      response: error.message,
+    };
+  }
+};
