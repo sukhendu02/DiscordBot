@@ -21,7 +21,7 @@ const ReplyText ={
 }
 
 export const discordInteractionService = async(interaction)=>{
-// console.log("Received interaction:", interaction);
+
     if(interaction.type===InteractionType.PING){
         return {
             type:InteractionResponseType.PONG,
@@ -29,7 +29,7 @@ export const discordInteractionService = async(interaction)=>{
     }
 
     if(interaction.type===InteractionType.APPLICATION_COMMAND){
-        // const commandName = interaction.data?.name;
+    
 
         return handleApplicationCommand(interaction);
       
@@ -73,9 +73,12 @@ if(!server){
         status:"processing",
     });
 
-    const matchedRule = await matchRule(server.id, inputText);
-    newCommandLog.matchedRuleId = matchedRule?.id ?? null;
-    newCommandLog.actionTaken = matchedRule?.action ?? "Logged";
+    // ONLY FOR REPORT
+    if(commandName==='report'){
+        const matchedRule = await matchRule(server.id, inputText);
+        newCommandLog.matchedRuleId = matchedRule?.id ?? null;
+        newCommandLog.actionTaken = matchedRule?.action ?? "Logged";
+    }
     
       // BULD REPLY 
     const reply = commandName==="status" ? ReplyText.STATUS : `${ReplyText.REPORT}  Action: ${newCommandLog.actionTaken}`;    
