@@ -21,8 +21,8 @@ CommandLog.belongsTo(Server, { foreignKey: 'serverId' });
 // If a rule is deleted, keep the historical log rows — just null out the
 // reference rather than deleting audit history.
 
-// Rule.hasMany(CommandLog, { foreignKey: 'matchedRuleId', onDelete: 'SET NULL' });
-// CommandLog.belongsTo(Rule, { foreignKey: 'matchedRuleId', as: 'matchedRule' });
+Rules.hasMany(CommandLog, { foreignKey: 'matchedRuleId', onDelete: 'SET NULL' });
+CommandLog.belongsTo(Rules, { foreignKey: 'matchedRuleId', as: 'matchedRule' });
 
 const syncDatabase = async ()=>{
     // await sequelize.sync({alter:true});

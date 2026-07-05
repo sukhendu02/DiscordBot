@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 export default function LoginPage() {
   const { isLoading, isAuthenticated, login } = useAuth();
+  
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');

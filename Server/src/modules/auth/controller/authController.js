@@ -8,3 +8,11 @@ export const loginAdmin = async (req,res,next)=>{
         ...response
     })
 }
+
+export const getAdmin = async(req,res)=>{
+ 
+    res.status(200).json({
+        success:true,
+        response:req.admin
+    })
+}
