@@ -8,6 +8,7 @@ import discordRoute from "./src/modules/discord/route/discordRoutes.js"
 import rulesRoutes from "./src/modules/rules/routes/rulesRoutes.js"
 import serverRoutes from "./src/modules/server/route/serverRoutes.js"
 import commandRoutes from "./src/modules/command/route/commandRoutes.js"
+import dashboardRoutes from "./src/modules/dashboard/routes/dashboardRoutes.js"
 import cors from 'cors';
 // HELMET MIDDLEWARE FOR SECURITY HEADERS
 app.use(helmet()); 
@@ -35,6 +36,7 @@ app.use("/api/v1/server",serverRoutes)
 
 app.use("/api/v1/commands",commandRoutes)
 
+app.use("/api/v1/dashboard",dashboardRoutes)
 
 // ROOT ROUTE
 app.get("/",(req,res)=>{
