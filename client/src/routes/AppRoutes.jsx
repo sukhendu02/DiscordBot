@@ -6,6 +6,7 @@ import AppLayout from '../components/layout/AppLayout.jsx';
 import CommandPage from '../pages/CommandPage.jsx'
 import ServersPage from '../pages/ServerPage.jsx';
 import SettingsPage from '../pages/SettingsPage.jsx'
+import RulesPage from '../pages/RulesPage.jsx';
 export default function AppRoutes() {
   return (
     <Routes>
@@ -14,7 +15,7 @@ export default function AppRoutes() {
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/commands" element={<CommandPage />} />
-          {/* <Route path="/rules" element={<RulesPage />} /> */}
+          <Route path="/rules" element={<RulesPage />} />
           <Route path="/servers" element={<ServersPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

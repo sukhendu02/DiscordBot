@@ -1,6 +1,6 @@
 
 import { BadRequestError, NotFoundError } from "../../../middleware/ErrorHandler.js";
-import { getRulesService,createRuleService,updateRuleService } from "../service/rulesService.js";
+import { getRulesService,createRuleService,updateRuleService,deleteRuleService } from "../service/rulesService.js";
 
 
 // GET ALL THE RULE CONTROLLER
@@ -43,5 +43,15 @@ export const updateRules = async(req,res)=>{
         updatedRule
     })
 
+}
+
+export const deleteRule = async (req,res)=>{
+    const ruleId = req.params.ruleId
+    if(!ruleId){
+        throw BadRequestError("Rule id is missing");
+    }
+        const deletedRule = await deleteRuleService(ruleId,req.admin.id);
+        return res.status(204).send()
+    
 }
 

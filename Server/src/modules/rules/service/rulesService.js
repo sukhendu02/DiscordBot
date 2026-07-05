@@ -58,6 +58,14 @@ export const updateRuleService = async(ruleId,data,adminId)=>{
   return rule;
 }
 
-
+export const deleteRuleService = async(ruleId,adminId)=>{
+    const rule= await Rules.findByPk(ruleId)
+    if(!rule){
+        throw NotFoundError("Rule not found");
+    }
+    await Rules.destroy({
+        where:{id:ruleId}
+    });
+}
 
 

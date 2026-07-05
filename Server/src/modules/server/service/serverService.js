@@ -1,4 +1,5 @@
 import { BadRequestError } from "../../../middleware/ErrorHandler.js"
+import CommandLog from "../../../models/commandLog.js";
 import Server from "../../../models/servermodel.js"
 
 export const getServerService= async (adminId)=>{
@@ -66,3 +67,28 @@ export const deleteServerService = async (serverId, adminId) => {
 export const findServerByGuildId = async (discordGuildId) => {
   return Server.findOne({ where: { discordGuildId } });
 };
+
+
+
+
+export const sendMirrorNotification =async(server,command)=>{
+  const messageText = `**/${command.commandName}** from <@${command.discordUserId}>: ${
+    command.inputText || "(no input)"
+  }\nAction: ${command.actionTaken}`;
+
+
+   const payload = server.mirrorType === "discord" ? { content: messageText } : { text: messageText };
+
+   const response = await fetch(server.mirrorWebhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(5000), // don't hang forever on a dead webhook
+    });
+      commandLog.mirrorStatus = response.ok ? "sent" : "failed";
+    if (!response.ok) {
+      commandLog.errorMessage = `Mirror webhook returned ${response.status}`;
+    }
+ 
+  await commandLog.save();
+}
