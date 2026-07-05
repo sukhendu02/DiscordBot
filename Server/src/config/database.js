@@ -11,7 +11,11 @@ const sequelize = new Sequelize(process.env.DATABASE_URL,{
     define:{
         underscored:true,
         timestamps:true,
-    }
+    },
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
 })
 
 export default sequelize;
