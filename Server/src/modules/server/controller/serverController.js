@@ -11,7 +11,7 @@ export const createServers = async(req,res)=>{
     const response = await createServerService(req.body, req.admin.id);
     return res.status(201).json({
         success:true,
-        response
+        data:response
     })
 
 }
