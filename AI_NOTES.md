@@ -2,84 +2,124 @@
 
 ## Which AI tools I used, and how work was split
 
-I used Claude (Anthropic) throughout — for planning the architecture, generating
-the Express/Sequelize backend code, debugging the Discord integration, and
+During the development of this project, I primarily used ChatGPT (GPT-5.5) and Claude Sonnet (Chat Based) as an engineering assistant throughout the development process — for planning the architecture, debugging the Discord integration, and
 scaffolding the React frontend components.
 
-Roughly how it split: Claude handled architecture decisions, wrote first drafts
-of nearly every file (models, middleware, services, controllers, routes, and
-frontend components), and walked through debugging step by step when something
+Roughly how it split: Claude handled architecture decisions, 
+and walked through debugging step by step when something
 broke. I did the actual typing into my project, ran everything locally, set up
 the Discord Developer Portal and Supabase myself, tested each piece in a real
 Discord server, and made the final call on trade-offs when there was a choice
-to make. I treated it less like "generate the whole app" and more like pairing
-through it one piece at a time — plan the step, get the code, test it for
-real, then move to the next step.
+to make. 
+
+AI was used to:
+- Brainstorm the overall architecture.
+- Explain Discord Interactions and Slash Commands.
+- Review Sequelize model relationships.
+- Debug backend and frontend issues.
+- Improve React component structure.
+- Suggest API designs.
+- Review deployment and production readiness.
+
+
+The implementation, integration, testing, and debugging were completed by me
+
+### I implemented
+
+- Overall backend architecture
+- Express routes and controllers
+- Sequelize models and associations
+- PostgreSQL database design
+- Authentication and JWT flow
+- Discord interaction handling
+- Rule matching logic
+- Webhook integration
+- React dashboard
+- CRUD operations
+- Deployment on Render
+- Database hosting on Supabase
+- Testing and debugging
+
+### AI assisted with
+
+- Explaining Discord API concepts
+- Reviewing code structure
+- Finding bugs in Sequelize associations
+- React UI improvements
+- Production deployment suggestions
+- Migration strategy discussion
+- Best practices for project organization
 
 ## Key decisions I made myself, and why
 
-**1. JWT with no refresh token.** I considered a full access+refresh token
-pair, but this app only has one or two admin accounts on a low-stakes internal
-dashboard — not a multi-tenant product with a large attack surface. Refresh
-tokens solve real problems (shorter exposure windows, server-side revocation)
-but need a tracked-token table, rotation, and reuse detection to do correctly.
-I decided that was disproportionate complexity for this timeline and threat
-model, and accepted the trade-off that logout only clears the token
-client-side rather than invalidating it server-side.
+### 1. Rule-based architecture
 
-**2. Discord snowflake IDs stored as `STRING`, and UUIDs for my own primary
-keys.** Discord's IDs exceed JavaScript's safe integer range, so storing them
-as numbers risks silent precision loss. And since the dashboard's API exposes
-resource IDs in URLs, I used UUIDs instead of auto-increment integers so
-nobody can guess `/api/servers/2`, `/api/servers/3`, etc.
+Instead of hardcoding responses inside the interaction handler, I created a configurable Rules table.
 
-**3. Separate `status` and `mirrorStatus` fields on `CommandLog`, instead of
-one combined status.** A command can be fully logged and replied to in
-Discord while its Slack mirror fails — those are two independent outcomes,
-and the spec specifically calls out that a downstream failure shouldn't take
-down the whole interaction. Splitting the fields let me satisfy that without
-guessing which failure a single "failed" status referred to.
+This allows administrators to create, edit, and remove rules directly from the dashboard without modifying backend code.
 
-## The hardest bug (and the one I actually got wrong)
+### 2. Separate Service Layer
 
-The core interaction handler originally did everything synchronously before
-replying to Discord: look up the server, insert the command log, check it
-against the rules table, save it, then respond. That worked fine in every
-local test. It broke the first time I tested it against my real Supabase
-database with real network latency — Discord showed **"The application did
-not respond,"** even though my own server logs showed the correct response
-object being built successfully right after.
+I kept controllers thin and moved business logic into service files.
 
-What actually happened: those four sequential database round trips added up
-to more than Discord's ~3 second response window. Discord doesn't wait past
-that window — it shows a timeout to the user and discards whatever you send
-afterward, even if your server "succeeds" a moment too late. My first
-instinct was to assume something was actually broken, since the console
-looked completely fine.
+Benefits:
 
-The fix was to acknowledge the interaction immediately (Discord's
-type-5 "deferred" response), do the real database work after that
-acknowledgment is already sent, and then edit the message in with the real
-content via a follow-up webhook call. This is the correct general pattern
-Discord expects for anything that isn't guaranteed to be instant — not just a
-workaround for slow database calls.
+- Better separation of concerns
+- Easier testing
+- Reusable logic
+- Cleaner controllers
 
-A smaller but related bug on the way there: I had briefly wrapped my
-response in an extra object (`res.json({ response })`) instead of sending it
-directly. That one was sneakier because my Ed25519 signature verification was
-completely correct and returned `true` — the failure was purely in the shape
-of the reply body, not the security check, so it took ruling out the crypto
-layer first before finding the actual cause.
+### 3. Database Design
 
-## What I'd improve or add with more time
+I designed the database using separate entities:
 
-- Real Sequelize migrations instead of `sync({ alter: true })`, since that's
-  risky against a live schema
-- The button and modal interaction types (stretch goals) — the signature
-  verification and dedup logic already generalize to them, they're just not
-  wired up yet
-- An AI summarization step on `/report` text, using a free-tier model
-- A visible failure/retry history in the dashboard, not just individual row
-  statuses
-- Rate limiting in front of the signature check, so scanners hitting the
-  public endpoint don't cost unnecessary crypto work
+- Admin
+- Server
+- Rules
+- CommandLog
+ach server has isolated configuration, enabling multi-server support while maintaining clear relationships between entities.
+
+
+## Hardest Bug
+
+The most difficult issue involved Sequelize associations between Rules and CommandLog.
+
+Initially, eager loading failed with the error:
+
+```
+Rules is associated to CommandLog using an alias.
+You must use the 'as' keyword.
+```
+
+After fixing the alias, adding the foreign key caused another issue because existing CommandLog records referenced rule IDs that no longer existed.
+
+I diagnosed the problem by inspecting the database constraints and model associations.
+
+The solution involved:
+
+- Correcting the association alias
+- Using the correct foreign key (`matchedRuleId`)
+- Cleaning invalid database records
+- Updating include statements to use the alias
+
+This reinforced the importance of keeping Sequelize associations and database schema synchronized.
+
+## What I Would Improve
+
+Given more time, I would implement:
+
+- Better Ui Design 
+- Implement dark mode
+- Database migrations using Umzug instead of relying on schema synchronization.
+- An AI summarization step on /report text, using a free-tier model
+- Retry queue for failed webhook deliveries.
+- Real-time dashboard updates using WebSockets.
+- Unit and integration tests.
+- Rate limiting and request throttling.
+- Audit logging improvements.
+- AI-powered report summarization and categorization.
+- Docker support for easier deployment.
+
+## Overall Reflection
+
+AI significantly accelerated development by providing explanations, reviewing implementation approaches, and helping debug difficult issues. However, all architectural decisions, integrations, debugging, and production fixes required manual verification and implementation. I treated AI as a development assistant rather than an automated code generator, validating each suggestion before incorporating it into the project.

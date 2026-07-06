@@ -238,20 +238,18 @@ command log.
 - **No public sign-up page.** The one admin account is created with a script
   (`adminSeed.js`), not a form — there's no reason a real admin dashboard
   should let anyone register themselves as an admin.
-- **JWT with no refresh token.** Sessions last 8 hours; logging out clears
+- **JWT with no refresh token.** Sessions last 10 hours; logging out clears
   the token client-side. For a small internal dashboard like this, a full
   refresh-token setup was more complexity than the actual risk called for.
 - **`/status` isn't mirrored to the second channel.** It's just a health
   check with nothing worth forwarding — only `/report` gets mirrored.
-- **Deferred responses.** Since a few database calls in a row can sometimes
-  take longer than Discord's 3-second limit, the bot acknowledges the
-  command immediately and edits in the real reply once processing finishes.
+
 
 ---
 
 ## Other files in this repo
 
 - `AI_NOTES.md` — how AI tools were used while building this
-- `CLAUDE.md` / `.cursorrules` (if present) — AI context files used during
-  development
+<!-- - `CLAUDE.md` / `.cursorrules` (if present) — AI context files used during
+  development -->
 - `.env.example` — in both `/client` and `/server`, no real secrets
