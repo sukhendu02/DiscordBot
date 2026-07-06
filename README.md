@@ -37,7 +37,7 @@ channel).
 | Database | PostgreSQL (Supabase) |
 | ORM | Sequelize |
 | Auth | JWT (Bearer token) |
-| Hosting | `[ADD HOSTING PROVIDER HERE — e.g. Render / Railway]` (backend), `[ADD HOSTING PROVIDER HERE — e.g. Vercel / Netlify]` (frontend) |
+| Hosting | `Render` (backend), `Vercel` (frontend) |
 
 ---
 
@@ -46,21 +46,35 @@ channel).
 ```
 /client                  React + Vite frontend
   /src
-    /api                 axios calls to the backend
-    /components/ui       Card, Button, Modal, EmptyState, etc.
+    /api                 axios calls 
+    /components/ui       Card, Button, Modal, 
     /context             AuthContext
     /pages               LoginPage, RulesPage, ServersPage, etc.
     /routes              ProtectedRoute, AppRoutes
+    /utils                Date Formatter
+    app.jsx
+    main.jsx
+  .env
+  index.html
+
 
 /server                   Express backend
-  /config                 database connection
-  /constants              shared Discord interaction type constants
-  /controller             thin request handlers
-  /service                actual business logic (rules, servers, mirror, discord)
-  /middleware             auth check, Discord signature check, error handler
-  /models                 Sequelize models (Admin, Server, Rule, CommandLog)
-  /routes                 Express route definitions
-  /scripts                one-off scripts (seed admin, register Discord commands)
+  /src
+    /config                 database connection
+   interaction type constants
+    /middleware             auth check, Discord signature check, error handler
+    /models                 Sequelize models (Admin, Server, Rule, CommandLog)
+    /modules                 Express route definitions
+      /auth
+      /command
+      /dashboard
+      /rules
+      /server
+    /utils               
+      /seeder one-off scripts (seed admin, register Discord commands)
+  .env
+  app.js
+  server.js
 ```
 
 ---
@@ -85,7 +99,6 @@ channel).
       briefly unavailable
 - [x] Responds within Discord's ~3 second window (uses a deferred
       response + follow-up for slower work)
-- [x] No secrets in the repo, client code, or logs
 - [x] Configurable rules through the dashboard UI, not hardcoded
 
 ---
@@ -115,10 +128,11 @@ channel).
 | `DISCORD_PUBLIC_KEY` | Verifies that requests really came from Discord |
 | `DISCORD_BOT_TOKEN` | Used to register slash commands |
 | `DISCORD_APPLICATION_ID` | Your Discord application's ID |
-| `DISCORD_GUILD_ID` | Your test server's ID (for fast command registration) |
-| `CLIENT_URL` | The deployed frontend's URL (for CORS) |
-| `SEED_ADMIN_EMAIL` | Used once, to create the first admin account |
-| `SEED_ADMIN_PASSWORD` | Used once, to create the first admin account |
+| `DISCORD_SERVER_ID` | Your test server's ID (for fast command registration) |
+| `FRONTEND_URL` | The deployed frontend's URL (for CORS) |
+| `ADMIN_NAME` | Used once, to create the first admin account |
+| `ADMIN_EMAIL` | Used once, to create the first admin account |
+| `ADMIN_PASSWORD` | Used once, to create the first admin account |
 
 ### `/client/.env`
 
@@ -156,14 +170,17 @@ it in `server/.env` as `DATABASE_URL`.
    `applications.commands` scopes)
 4. Register the two slash commands:
    ```bash
-   node server/scripts/register-commands.js
+   node server/config/register-commands.js
    ```
 
 ### 4. Create the first admin account
 
 ```bash
-SEED_ADMIN_EMAIL="you@example.com" SEED_ADMIN_PASSWORD="yourpassword" \
-node server/scripts/seed-admin.js
+
+ADMIN_NAME="USERNAME" 
+ADMIN_EMAIL="you@example.com" 
+ADMIN_PASSWORD="yourpassword" \
+node server/seeder/adminSeeder.js
 ```
 
 ### 5. Run both apps
@@ -185,29 +202,30 @@ locally, use a tunnel:
 ngrok http <your-backend-port>
 ```
 
-Paste the `https://...` URL it gives you (plus `/api/discord/interactions`)
+Paste the `https://...` URL it gives you (plus `/api/v1/discord/interactions`)
 into the Developer Portal's **Interactions Endpoint URL** field.
 
 ---
 
 ## How it's deployed
 
-- **Backend:** `[ADD RENDER/RAILWAY DEPLOYED BACKEND URL HERE]`
-- **Frontend:** `[ADD VERCEL/NETLIFY DEPLOYED FRONTEND URL HERE]`
+- **Backend:** `https://discordbot-0f83.onrender.com`
+- **Frontend:** `https://discord-bot-beta-ten.vercel.app`
 - **Database:** Supabase (Postgres)
 - **Discord Interactions Endpoint URL** (set in the Developer Portal):
-  `[ADD DEPLOYED BACKEND URL]/api/discord/interactions`
+  `https://discordbot-0f83.onrender.com/api/v1/discord/interactions`
 
 ---
 
 ## How to test this
 
-- **GitHub repo:** `[ADD GITHUB REPO LINK HERE]`
-- **Live app:** `[ADD DEPLOYED FRONTEND URL HERE]`
-- **Discord test server invite:** `[ADD DISCORD SERVER INVITE LINK HERE]`
+- **GitHub repo:** `https://github.com/sukhendu02/DiscordBot`
+- **Live app:** `https://discord-bot-beta-ten.vercel.app`
+- **Discord test server invite:** `https://discord.gg/rvjWYNuMt`
+- **Discord test webhook server invite:** `https://discord.gg/VEuUk8dgX`
 - **Throwaway admin login:**
-  - Email: `[ADD TEST ADMIN EMAIL HERE]`
-  - Password: `[ADD TEST ADMIN PASSWORD HERE]`
+  - Email: `admin@test.com`
+  - Password: `admin123`
 
 To see it working: join the test server above, run `/status` or
 `/report <some text>`, then log into the dashboard to see it appear in the
@@ -218,7 +236,7 @@ command log.
 ## A few design decisions worth knowing
 
 - **No public sign-up page.** The one admin account is created with a script
-  (`seed-admin.js`), not a form — there's no reason a real admin dashboard
+  (`adminSeed.js`), not a form — there's no reason a real admin dashboard
   should let anyone register themselves as an admin.
 - **JWT with no refresh token.** Sessions last 8 hours; logging out clears
   the token client-side. For a small internal dashboard like this, a full
