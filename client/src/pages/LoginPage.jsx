@@ -50,7 +50,12 @@ export default function LoginPage() {
 
 
 
-    <div className="min-h-screen flex items-center justify-center bg-background text-on-background px-4">
+    <div className="relative  min-h-screen flex items-center justify-center  text-gray-800 px-4">
+   <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-primary opacity-20 blur-3xl" />
+    <div className="absolute -bottom-30 -right-30 h-96 w-96 rounded-full bg-primary opacity-20 blur-3xl" />
+  </div>
+
       <div className="w-full max-w-sm">
         <div className="card shadow-card p-8">
           <div className="flex flex-col items-center mb-8">
@@ -121,7 +126,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn btn-primary w-full cursor-pointer bg-primary p-2 rounded-md my-3 font-semibold"
+              className="btn btn-primary w-full cursor-pointer bg-primary text-white p-2 rounded-md my-3 font-semibold"
             >
               {isSubmitting ? (
                 <>
